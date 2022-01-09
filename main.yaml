@@ -1,0 +1,31 @@
+name: CI Vogsphere
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  vogsphere:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone current repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Configure Vogsphere remote as repository
+        run: |
+          git remote add vogsphere ${{ secrets.VOGSPHERE_REPOSITORY_URL  }}
+      - name: Configure Vogsphere private key
+        run: |
+          mkdir ~/.ssh
+          touch ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.VOGSPHERE_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.VOGSPHERE_URL }} > ~/.ssh/known_hosts
+      - name: Sync GitHub with Vogsphere
+        run: |
+          VOGSPHERE_DEFAULT_BRANCH=$(git remote show vogsphere | sed -n '/HEAD branch/s/.*: //p')
+          if [ $GIT_DEFAULT_BRANCH == "(unknown)" ]; then
+            VOGSPHERE_DEFAULT_BRANCH="main"
+          fi
+          git push vogsphere $VOGSPHERE_DEFAULT_BRANCH
