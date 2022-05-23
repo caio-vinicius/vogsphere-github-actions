@@ -25,7 +25,7 @@ jobs:
       - name: Sync GitHub with Vogsphere
         run: |
           VOGSPHERE_DEFAULT_BRANCH=$(git remote show vogsphere | sed -n '/HEAD branch/s/.*: //p')
-          if [ $GIT_DEFAULT_BRANCH == "(unknown)" ]; then
+          if [ $VOGSPHERE_DEFAULT_BRANCH == "(unknown)" ]; then
             VOGSPHERE_DEFAULT_BRANCH="main"
           fi
           git push vogsphere $VOGSPHERE_DEFAULT_BRANCH
